@@ -3,8 +3,8 @@ import { setupDOM } from './dom-manipulator'
 import { executeRedemption } from './event-handler'
 
 // Application
-const ctPointsContainerObserver = new MutationObserver(findRewardContainer)
-const ctPointsRewardObserver = new MutationObserver(filterDOMInsertionEvents)
+const pointsContainerObserver = new MutationObserver(findRewardContainer)
+const pointsRewardObserver = new MutationObserver(filterDOMInsertionEvents)
 const handledRewards = new Map()
 const pendingRewards = new Map()
 let resolver = {}
@@ -15,7 +15,7 @@ const DOMReady = new Promise(resolve => {
 export function listen() {
     log('Channel Points DOM Listener Loaded.')
     // get the reward container
-    ctPointsContainerObserver.observe(document.body, {
+    pointsContainerObserver.observe(document.body, {
         childList: true,
         subtree: true,
         attributes: false,
@@ -33,8 +33,8 @@ function findRewardContainer(mutations) {
                 const queue = $(node).find('.reward-queue-body')[0]
                 if (!queue) return // No reward queue here
                 log('Rewards container found! Listening for reward events...')
-                ctPointsContainerObserver.disconnect()
-                ctPointsRewardObserver.observe(queue, {
+                pointsContainerObserver.disconnect()
+                pointsRewardObserver.observe(queue, {
                     childList: true,
                     subtree: true,
                     attributes: false,
@@ -75,7 +75,6 @@ async function handleRedemption($redemptionContainer) {
         handledRewards.set(redemptionData.reportId)
         pendingRewards.set(redemptionData.reportId, redemptionData)
         const result = await executeRedemption(redemptionData)
-        console.log(result)
     }
 }
 

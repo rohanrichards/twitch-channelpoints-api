@@ -182,28 +182,37 @@
         try {
           // execute the reward function
           await executeCommandChain(redemptionData);
-          acceptRedemption(redemptionData);
+          return acceptRedemption(redemptionData);
         } catch (e) {
           log$1('rejecting: ' + e.message); // need to remove it from the cooldowns because it didn't actually run
 
           removeFromCooldown(redemptionData);
-          rejectRedemption(redemptionData);
+          return rejectRedemption(redemptionData);
         }
       } catch (e) {
         // unexpected reward failure!
         console.error(e.message); // need to remove it from the cooldowns because it didn't actually run
 
         removeFromCooldown(redemptionData);
-        rejectRedemption(redemptionData);
+        return rejectRedemption(redemptionData);
       }
     }
 
     function rejectRedemption(redemptionData) {
-      log$1(`rejecting: ${redemptionData.rewardName}`); // click the reject button
+      const name = redemptionData.rewardName;
+      log$1(`rejecting: ${name}`); // click the reject button
+
+      redemptionData.actions.reject.click();
+      return false;
     }
 
     function acceptRedemption(redemptionData) {
-      log$1(`accepting: ${redemptionData.rewardName}`); // click the accept button
+      debugger;
+      const name = redemptionData.rewardName;
+      log$1(`accepting: ${name}`); // click the accept button
+
+      redemptionData.actions.resolve.click();
+      return true;
     }
 
     async function executeCommandChain(redemptionData) {
@@ -258,7 +267,7 @@
     }
 
     function log$1() {
-      const prefix = '[ctPoints]';
+      const prefix = '[BetterPoints]';
       const args = Array.prototype.slice.call(arguments);
       args.unshift('%c' + prefix, 'background: #222; color: #bada55');
       console.log.apply(console, args);
@@ -2113,8 +2122,8 @@
       }, 5000);
     }
 
-    const ctPointsContainerObserver = new MutationObserver(findRewardContainer);
-    const ctPointsRewardObserver = new MutationObserver(filterDOMInsertionEvents);
+    const pointsContainerObserver = new MutationObserver(findRewardContainer);
+    const pointsRewardObserver = new MutationObserver(filterDOMInsertionEvents);
     const handledRewards = new Map();
     const pendingRewards = new Map();
     let resolver = {};
@@ -2124,7 +2133,7 @@
     function listen() {
       log('Channel Points DOM Listener Loaded.'); // get the reward container
 
-      ctPointsContainerObserver.observe(document.body, {
+      pointsContainerObserver.observe(document.body, {
         childList: true,
         subtree: true,
         attributes: false,
@@ -2142,8 +2151,8 @@
             if (!queue) return; // No reward queue here
 
             log('Rewards container found! Listening for reward events...');
-            ctPointsContainerObserver.disconnect();
-            ctPointsRewardObserver.observe(queue, {
+            pointsContainerObserver.disconnect();
+            pointsRewardObserver.observe(queue, {
               childList: true,
               subtree: true,
               attributes: false,
@@ -2183,7 +2192,6 @@
         handledRewards.set(redemptionData.reportId);
         pendingRewards.set(redemptionData.reportId, redemptionData);
         const result = await executeRedemption(redemptionData);
-        console.log(result);
       }
     } // pull everything off the DOM and return an object
 

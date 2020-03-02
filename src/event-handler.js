@@ -129,30 +129,39 @@ export async function executeRedemption(redemptionData) {
         try {
             // execute the reward function
             await executeCommandChain(redemptionData)
-            acceptRedemption(redemptionData)
+           return acceptRedemption(redemptionData)
         } catch (e) {
             log('rejecting: ' + e.message)
             // need to remove it from the cooldowns because it didn't actually run
             removeFromCooldown(redemptionData)
-            rejectRedemption(redemptionData)
+            return rejectRedemption(redemptionData)
         }
     } catch (e) {
         // unexpected reward failure!
         console.error(e.message)
         // need to remove it from the cooldowns because it didn't actually run
         removeFromCooldown(redemptionData)
-        rejectRedemption(redemptionData)
+        return rejectRedemption(redemptionData)
     }
 }
 
 function rejectRedemption(redemptionData) {
-    log(`rejecting: ${redemptionData.rewardName}`)
+    const name = redemptionData.rewardName
+    
+    log(`rejecting: ${name}`)
     // click the reject button
+    redemptionData.actions.reject.click()
+    return false
 }
 
 function acceptRedemption(redemptionData) {
-    log(`accepting: ${redemptionData.rewardName}`)
+    debugger
+    const name = redemptionData.rewardName
+    
+    log(`accepting: ${name}`)
     // click the accept button
+    redemptionData.actions.resolve.click()
+    return true
 }
 
 async function executeCommandChain(redemptionData) {
@@ -217,7 +226,7 @@ function removeFromCooldown(redemptionData) {
 }
 
 function log() {
-    const prefix = '[ctPoints]'
+    const prefix = '[BetterPoints]'
     const args = Array.prototype.slice.call(arguments)
     args.unshift('%c' + prefix, 'background: #222; color: #bada55')
     console.log.apply(console, args)
