@@ -136,6 +136,89 @@ const rewards = {
             }
         }
     },
+    'Event: Snow': {
+        suffix: ' (snow)',
+        cooldownInSeconds: 600,
+        execute: async function (redemption) {
+            try {
+                const initialScene = await obs.client.send('GetCurrentScene')
+                // change to the scene
+                await obs.client.send('SetCurrentScene', {
+                    'scene-name': initialScene.name + this.suffix
+                })
+
+                // set snow visible
+                await obs.client.send('SetSceneItemProperties', {
+                    item: 'snow',
+                    visible: true
+                })
+
+                await delay(5000)
+
+                // start filling up webcam
+                await obs.client.send('SetSceneItemProperties', {
+                    item: 'snow_cam_fill',
+                    visible: true
+                })
+
+                await delay(15000)
+
+                // start emptying the cam
+                await obs.client.send('SetSceneItemProperties', {
+                    item: 'snow_cam_empty',
+                    visible: true
+                })
+                await delay(10)
+
+                await obs.client.send('SetSceneItemProperties', {
+                    item: 'snow_cam_fill',
+                    visible: false
+                })
+
+                await delay(5000)
+
+                // reset visibilities
+                await obs.client.send('SetSceneItemProperties', {
+                    item: 'snow_cam_fill',
+                    visible: false
+                })
+                await obs.client.send('SetSceneItemProperties', {
+                    item: 'snow_cam_empty',
+                    visible: false
+                })
+                await obs.client.send('SetSceneItemProperties', {
+                    item: 'snow',
+                    visible: false
+                })
+
+                // back to original scene
+                await obs.client.send('SetCurrentScene', {
+                    'scene-name': initialScene.name
+                })
+
+                // start filling up webcam
+                await obs.client.send('SetSceneItemProperties', {
+                    item: 'snow_cam_fill',
+                    visible: false
+                })
+                // start filling up webcam
+                await obs.client.send('SetSceneItemProperties', {
+                    item: 'snow_cam_empty',
+                    visible: true
+                })
+
+                return {
+                    success: true,
+                    message: 'We did the OBS thing!'
+                }
+            } catch (e) {
+                return {
+                    success: false,
+                    message: e.error
+                }
+            }
+        }
+    },
     'Event: Disco Dancin': {
         suffix: ' (disco)',
         cooldownInSeconds: 900,
@@ -204,8 +287,15 @@ const rewards = {
                     'scene-name': initialScene.name + this.suffix
                 })
 
+                await delay(11000)
+
+                await obs.client.send('SetSceneItemProperties', {
+                    item: 'lasers2',
+                    visible: true
+                })
+
                 // wait for first drop
-                await delay(13000)
+                await delay(2000)
 
                 // set the sources visible (webcam, crowd, lasers)
                 await obs.client.send('SetSceneItemProperties', {
@@ -255,6 +345,10 @@ const rewards = {
                 })
                 await obs.client.send('SetSceneItemProperties', {
                     item: 'lasers',
+                    visible: false
+                })
+                await obs.client.send('SetSceneItemProperties', {
+                    item: 'lasers2',
                     visible: false
                 })
                 await obs.client.send('SetSceneItemProperties', {
